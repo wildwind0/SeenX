@@ -11,7 +11,9 @@
     "build:firefox": "wxt build -b firefox",
     "zip": "wxt zip",
     "compile": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "zip:firefox": "wxt zip -b firefox",
+    "zip:all": "wxt zip && wxt zip -b firefox"
   },
   "dependencies": {
     "clsx": "^2.1.1",
