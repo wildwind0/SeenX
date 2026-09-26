@@ -1,0 +1,89 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Tag to release (e.g. v1.0.0, leave empty to use package.json version)'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build & Release Extension
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run tests
+        run: pnpm run test
+
+      - name: Build and package extension
+        run: pnpm run zip:all
+
+      - name: Determine tag and version
+        id: vars
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          if [ -n "${{ inputs.tag_name }}" ]; then
+            TAG="${{ inputs.tag_name }}"
+          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            TAG="${GITHUB_REF#refs/tags/}"
+          else
+            TAG="v$VERSION"
+          fi
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.vars.outputs.tag }}
+          name: SeenX ${{ steps.vars.outputs.tag }}
+          files: |
+            dist/*.zip
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+          body: |
+            ## 📦 SeenX Release ${{ steps.vars.outputs.tag }}
+
+            ### 🚀 安装包下载 (Downloads)
+            - **Chrome / Edge / Brave**: 下载 `seenx-${{ steps.vars.outputs.version }}-chrome.zip`
+            - **Firefox**: 下载 `seenx-${{ steps.vars.outputs.version }}-firefox.zip`
+            - **Source Code**: 下载 `seenx-${{ steps.vars.outputs.version }}-sources.zip`
+
+            ### 💡 安装指引 (Installation Guide)
+            1. 下载对应的 zip 压缩包并解压；
+            2. 打开浏览器扩展管理页面：
+               - Chrome: `chrome://extensions/`
+               - Edge: `edge://extensions/`
+               - Brave: `brave://extensions/`
+            3. 开启右上角的「**开发者模式** (Developer mode)」；
+            4. 点击「**加载已解压的扩展程序** (Load unpacked)」，选择解压后的文件夹即可完成安装。
+
+            ---
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
