@@ -1,0 +1,14 @@
+{
+  "extName": {
+    "message": "SeenX",
+    "description": "The name of the extension"
+  },
+  "extDesc": {
+    "message": "Automatically capture and search your X (Twitter) browsing history locally. Zero login, 100% local.",
+    "description": "The description of the extension"
+  },
+  "actionTitle": {
+    "message": "Open SeenX Side Panel",
+    "description": "Action toolbar icon title"
+  }
+}

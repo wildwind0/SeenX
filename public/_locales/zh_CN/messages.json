@@ -1,0 +1,14 @@
+{
+  "extName": {
+    "message": "SeenX",
+    "description": "The name of the extension"
+  },
+  "extDesc": {
+    "message": "自动、本地化记录与检索 X (Twitter) 浏览历史。支持长文、视频与图文，免登录纯本地运行。",
+    "description": "The description of the extension"
+  },
+  "actionTitle": {
+    "message": "打开 SeenX 侧边栏",
+    "description": "Action toolbar icon title"
+  }
+}
